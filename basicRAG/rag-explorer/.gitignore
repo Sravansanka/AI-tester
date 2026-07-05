@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+chroma-data/
+.venv/
+*.log
+.DS_Store

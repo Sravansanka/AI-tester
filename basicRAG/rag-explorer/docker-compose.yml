@@ -1,0 +1,51 @@
+services:
+  chroma:
+    image: chromadb/chroma:latest
+    volumes:
+      - chroma-data:/chroma/chroma
+    ports:
+      - "8000:8000"
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"
+
+  # One-shot: waits for ollama, then pulls the embedding model. Exits when done.
+  ollama-pull:
+    image: ollama/ollama:latest
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: ["sh", "-c", "until ollama list >/dev/null 2>&1; do sleep 2; done; ollama pull nomic-embed-text"]
+
+  app:
+    build: .
+    depends_on:
+      - chroma
+      - ollama
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - CHROMA_URL=http://chroma:8000
+      - DATA_DIR=/data
+      - PORT=8787
+    volumes:
+      - ../data:/data:ro
+    ports:
+      - "8787:8787"
+
+  # Public HTTPS URL for the app, no account/signup needed (ephemeral trycloudflare.com link).
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --url http://app:8787
+    depends_on:
+      - app
+
+volumes:
+  chroma-data:
+  ollama-data:

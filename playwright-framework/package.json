@@ -1,0 +1,28 @@
+{
+  "name": "playwright-e2e-framework",
+  "version": "1.0.0",
+  "description": "Enterprise-grade Playwright E2E framework with 8-layer architecture",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:ui": "npx playwright test --ui",
+    "test:debug": "npx playwright test --debug",
+    "test:p0": "npx playwright test --grep @P0",
+    "test:p1": "npx playwright test --grep @P1",
+    "test:smoke": "npx playwright test --grep @Smoke",
+    "test:chromium": "npx playwright test --project=chromium",
+    "test:firefox": "npx playwright test --project=firefox",
+    "test:webkit": "npx playwright test --project=webkit",
+    "report": "npx playwright show-report",
+    "codegen": "npx playwright codegen",
+    "install:browsers": "npx playwright install --with-deps"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "prod-001",
+    "name": "Wireless Headphones",
+    "price": 99.99,
+    "description": "Premium noise-cancelling wireless headphones",
+    "category": "Electronics"
+  },
+  {
+    "id": "prod-002",
+    "name": "Laptop Stand",
+    "price": 49.99,
+    "description": "Adjustable aluminium laptop stand",
+    "category": "Accessories"
+  },
+  {
+    "id": "prod-003",
+    "name": "Mechanical Keyboard",
+    "price": 129.99,
+    "description": "Compact TKL mechanical keyboard",
+    "category": "Electronics"
+  }
+]

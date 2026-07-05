@@ -1,0 +1,20 @@
+[
+  {
+    "username": "standard_user",
+    "password": "secret_sauce",
+    "email": "standard@test.com",
+    "role": "user"
+  },
+  {
+    "username": "admin_user",
+    "password": "admin_pass",
+    "email": "admin@test.com",
+    "role": "admin"
+  },
+  {
+    "username": "locked_user",
+    "password": "secret_sauce",
+    "email": "locked@test.com",
+    "role": "user"
+  }
+]

@@ -1,0 +1,28 @@
+services:
+  shard-1:
+    build: .
+    command: npx playwright test --shard=1/4
+    env_file: .env
+    volumes:
+      - ./results/shard-1:/app/test-results
+
+  shard-2:
+    build: .
+    command: npx playwright test --shard=2/4
+    env_file: .env
+    volumes:
+      - ./results/shard-2:/app/test-results
+
+  shard-3:
+    build: .
+    command: npx playwright test --shard=3/4
+    env_file: .env
+    volumes:
+      - ./results/shard-3:/app/test-results
+
+  shard-4:
+    build: .
+    command: npx playwright test --shard=4/4
+    env_file: .env
+    volumes:
+      - ./results/shard-4:/app/test-results

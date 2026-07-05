@@ -1,0 +1,26 @@
+# Secrets — never commit, regardless of which subproject they're in
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependencies / build output
+**/node_modules/
+**/dist/
+**/build/
+**/.venv/
+**/venv/
+
+# Local data / vector stores
+**/chroma-data/
+**/chroma_db/
+
+# Claude Code local-only settings
+**/.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Misc
+**/*.log
+**/.DS_Store
+**/playwright-report/
+**/test-results/
+**/tta-report/
