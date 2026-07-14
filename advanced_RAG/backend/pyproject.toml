@@ -1,0 +1,25 @@
+[project]
+name = "advanced-rag-backend"
+version = "0.1.0"
+description = "Advanced RAG Explorer backend — hybrid retrieval pipeline over VWO test cases"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic-settings>=2.6",
+    "qdrant-client==1.12.1",
+    "FlagEmbedding==1.3.4",
+    "transformers==4.46.3",
+    "torch==2.5.1",
+    "openai>=1.54",
+    "python-dotenv>=1.0",
+    "tqdm>=4.66",
+]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu124" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true

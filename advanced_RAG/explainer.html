@@ -1,0 +1,332 @@
+<title>Advanced RAG Explorer — How It Was Built</title>
+<style>
+  :root {
+    --cream-50: #fdfaf3;
+    --cream-100: #f7f1e4;
+    --cream-200: #efe6d2;
+    --cream-300: #e3d5b8;
+    --coral-400: #e8845f;
+    --coral-500: #d97347;
+    --coral-600: #c15f37;
+    --ink-900: #2b2620;
+    --ink-700: #4a4237;
+    --ink-500: #786f61;
+    --line: #e4d9c4;
+    --green-500: #6a9a5c;
+    --card-bg: #ffffff;
+  }
+  :root[data-theme="dark"] {
+    --cream-50: #1c1712;
+    --cream-100: #241d16;
+    --cream-200: #2d251b;
+    --cream-300: #3a3022;
+    --ink-900: #f3ead9;
+    --ink-700: #d8cbb4;
+    --ink-500: #a89a80;
+    --line: #3d3323;
+    --card-bg: #241d16;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --cream-50: #1c1712;
+      --cream-100: #241d16;
+      --cream-200: #2d251b;
+      --cream-300: #3a3022;
+      --ink-900: #f3ead9;
+      --ink-700: #d8cbb4;
+      --ink-500: #a89a80;
+      --line: #3d3323;
+      --card-bg: #241d16;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--cream-100);
+    color: var(--ink-900);
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  .hero { text-align: center; margin-bottom: 64px; }
+  .hero .eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--coral-600);
+    background: rgba(217, 115, 71, 0.1);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  .hero h1 { font-size: 38px; margin: 0 0 14px; letter-spacing: -0.5px; }
+  .hero p { color: var(--ink-500); font-size: 16px; max-width: 620px; margin: 0 auto; }
+
+  section { margin-bottom: 72px; }
+  h2 { font-size: 22px; margin: 0 0 8px; }
+  .section-sub { color: var(--ink-500); font-size: 14px; margin: 0 0 32px; }
+
+  /* Pipeline diagram */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding: 20px 0 44px;
+    overflow-x: auto;
+    gap: 4px;
+  }
+  .pipeline::before {
+    content: "";
+    position: absolute;
+    top: 46px;
+    left: 40px;
+    right: 40px;
+    height: 2px;
+    background: var(--line);
+  }
+  .stage {
+    position: relative;
+    flex: 1;
+    min-width: 130px;
+    text-align: center;
+    z-index: 1;
+  }
+  .stage .node {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 2px solid var(--coral-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 2px 8px rgba(43, 38, 32, 0.08);
+  }
+  .stage .label { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .stage .desc { font-size: 12px; color: var(--ink-500); padding: 0 6px; }
+
+  .packet {
+    position: absolute;
+    top: 44px;
+    left: 40px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--coral-500);
+    box-shadow: 0 0 0 4px rgba(217, 115, 71, 0.25);
+    animation: travel 6s linear infinite;
+  }
+  @keyframes travel {
+    0% { left: 40px; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { left: calc(100% - 46px); opacity: 0; }
+  }
+
+  /* Tech cards */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(43, 38, 32, 0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(43, 38, 32, 0.1); }
+  .card .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--coral-600);
+    background: rgba(217, 115, 71, 0.1);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .card h3 { font-size: 15px; margin: 0 0 6px; }
+  .card p { font-size: 13px; color: var(--ink-500); margin: 0; }
+
+  /* Stats */
+  .stats { display: flex; gap: 16px; flex-wrap: wrap; }
+  .stat {
+    flex: 1;
+    min-width: 150px;
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat .num { font-size: 30px; font-weight: 800; color: var(--coral-600); }
+  .stat .lbl { font-size: 12px; color: var(--ink-500); margin-top: 4px; }
+
+  /* Narrative */
+  .narrative {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 30px;
+  }
+  .narrative p { font-size: 14px; color: var(--ink-700); margin: 0 0 14px; }
+  .narrative p:last-child { margin-bottom: 0; }
+
+  /* UI wireframe mock */
+  .mock {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--card-bg);
+    height: 260px;
+  }
+  .mock .left { background: var(--cream-50); border-right: 1px solid var(--line); padding: 16px 12px; }
+  .mock .bar { height: 8px; border-radius: 4px; background: var(--cream-300); margin-bottom: 10px; }
+  .mock .bar.short { width: 60%; }
+  .mock .row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .mock .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green-500); flex-shrink: 0; }
+  .mock .dot.active { background: var(--coral-500); animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .mock .right { padding: 20px; }
+  .mock .bubble {
+    max-width: 70%;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
+  .mock .bubble.user { margin-left: auto; background: var(--coral-500); color: #fff; }
+  .mock .bubble.bot { background: var(--cream-100); border: 1px solid var(--line); color: var(--ink-700); }
+
+  footer { text-align: center; color: var(--ink-500); font-size: 12px; padding-top: 24px; border-top: 1px solid var(--line); }
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <span class="eyebrow">THE TESTING ACADEMY · VIBE-CODED DEMO</span>
+    <h1>Advanced RAG Explorer</h1>
+    <p>
+      An end-to-end teaching demo showing what changes when a RAG pipeline has to work at scale
+      on a real corpus — 5,000 generated VWO test cases — instead of a handful of PDF pages.
+    </p>
+  </div>
+
+  <section>
+    <h2>The Pipeline</h2>
+    <p class="section-sub">Every query passes through five stages, streamed live to the UI as it runs.</p>
+    <div class="pipeline">
+      <div class="packet"></div>
+      <div class="stage">
+        <div class="node">✏️</div>
+        <div class="label">Rewrite</div>
+        <div class="desc">OpenAI generates 2 alternate phrasings to widen recall</div>
+      </div>
+      <div class="stage">
+        <div class="node">🧬</div>
+        <div class="label">Embed</div>
+        <div class="desc">BGE-M3 produces dense + sparse vectors from one model</div>
+      </div>
+      <div class="stage">
+        <div class="node">🔎</div>
+        <div class="label">Retrieve</div>
+        <div class="desc">Qdrant fuses dense + sparse hits via RRF, with filters</div>
+      </div>
+      <div class="stage">
+        <div class="node">🎯</div>
+        <div class="label">Rerank</div>
+        <div class="desc">bge-reranker-v2-m3 cross-encoder rescoring</div>
+      </div>
+      <div class="stage">
+        <div class="node">💬</div>
+        <div class="label">Generate</div>
+        <div class="desc">GPT-4o answers, citing the retrieved test case IDs</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Corpus</h2>
+    <p class="section-sub">A combinatorially generated corpus of VWO (CRO/A-B-testing) test cases — not hand-written, not randomly scrambled.</p>
+    <div class="stats">
+      <div class="stat"><div class="num">5,000</div><div class="lbl">test cases</div></div>
+      <div class="stat"><div class="num">14</div><div class="lbl">VWO components</div></div>
+      <div class="stat"><div class="num">9</div><div class="lbl">scenario types</div></div>
+      <div class="stat"><div class="num">1:1</div><div class="lbl">test case → vector point</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Stack</h2>
+    <p class="section-sub">One dependency where possible, GPU-accelerated locally where the spec called for named models.</p>
+    <div class="grid">
+      <div class="card"><span class="tag">VECTOR DB</span><h3>Qdrant</h3><p>Local Docker instance, named dense + sparse vectors, RRF fusion, payload filters.</p></div>
+      <div class="card"><span class="tag">EMBEDDING</span><h3>BAAI/bge-m3</h3><p>One model, one forward pass, both dense and lexical (sparse) vectors.</p></div>
+      <div class="card"><span class="tag">RERANK</span><h3>bge-reranker-v2-m3</h3><p>Cross-encoder rescoring of the fused candidate set before generation.</p></div>
+      <div class="card"><span class="tag">GENERATION</span><h3>GPT-4o</h3><p>Streamed, grounded, citation-required answers over reranked context.</p></div>
+      <div class="card"><span class="tag">BACKEND</span><h3>FastAPI + SSE</h3><p>Each pipeline stage streams a live event to the UI as it completes.</p></div>
+      <div class="card"><span class="tag">FRONTEND</span><h3>React + Vite</h3><p>Two-pane layout: live stage tracker on the left, chat on the right.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How this was vibe-coded</h2>
+    <div class="narrative">
+      <p>
+        The build started from a short, partly-truncated spec: five named techniques
+        (hybrid embedding, hybrid vector search, reranking, query rewriting, generation)
+        and a UI description — no pipeline step list, no data schema, no existing
+        Jira-format template to copy. The rest was designed against that intent rather
+        than filled in with guesses: a deterministic, combinatorial generator built the
+        5,000-row test-case corpus (component × sub-feature × scenario type × priority,
+        not hand-authored, not random text), and the five pipeline stages were defined
+        to match exactly what the spec's bullet list implied — rewrite feeds embed,
+        embed feeds a fused hybrid retrieve, retrieve feeds rerank, rerank feeds a
+        grounded, citation-required generate.
+      </p>
+      <p>
+        Everything was scaffolded, run, and verified stage by stage rather than all at
+        once: the generator was validated for uniqueness before any embedding model was
+        loaded; retrieval was smoke-tested directly against Qdrant before an HTTP layer
+        existed; the reranker was checked for sane score reordering before generation
+        was wired in. That order caught two real dependency conflicts early — a
+        <code>transformers</code> version too new for the pinned reranker library, and a
+        Qdrant client/server version mismatch — long before they could surface as a
+        confusing failure deep inside a live chat request.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>The UI</h2>
+    <p class="section-sub">Claude-inspired warm cream + coral theme. Left pane tracks the pipeline live; right pane is the chat.</p>
+    <div class="mock">
+      <div class="left">
+        <div class="bar short"></div>
+        <div class="bar" style="width: 40%; height: 6px; margin-bottom: 20px;"></div>
+        <div class="row"><span class="dot"></span><span class="bar" style="width: 70px; margin: 0;"></span></div>
+        <div class="row"><span class="dot"></span><span class="bar" style="width: 90px; margin: 0;"></span></div>
+        <div class="row"><span class="dot active"></span><span class="bar" style="width: 60px; margin: 0;"></span></div>
+        <div class="row"><span class="dot" style="background: var(--cream-300);"></span><span class="bar" style="width: 80px; margin: 0; background: var(--cream-200);"></span></div>
+        <div class="row"><span class="dot" style="background: var(--cream-300);"></span><span class="bar" style="width: 65px; margin: 0; background: var(--cream-200);"></span></div>
+      </div>
+      <div class="right">
+        <div class="bubble user">How is Split URL Testing validated for redirects?</div>
+        <div class="bubble bot">Redirect mapping is covered by VWO-SURL-POS-0004, with cross-domain and loop-prevention cases in …</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Advanced RAG Explorer — a vibe-coded teaching demo for The Testing Academy.</footer>
+</div>
