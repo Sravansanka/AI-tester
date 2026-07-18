@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Advanced RAG Explorer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span> Advanced RAG Explorer</div>
+    <div class="badges">
+      <span class="badge" title="hybrid embeddings">{{ cfg.EMBED_MODEL }}</span>
+      <span class="badge" title="cross-encoder reranker">{{ cfg.RERANK_MODEL }}</span>
+      <span class="badge" title="generation LLM">{{ cfg.LLM_MODEL }}</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- LEFT: live pipeline tracker -->
+    <aside class="rail">
+      <div class="rail-group">
+        <h3>Ingest pipeline</h3>
+        <ol class="stages" id="ingestStages">
+          <li data-s="read"><span></span>Read</li>
+          <li data-s="build"><span></span>Build docs</li>
+          <li data-s="chunk"><span></span>Chunk</li>
+          <li data-s="embed"><span></span>Embed (dense+sparse)</li>
+          <li data-s="index"><span></span>Index (Qdrant)</li>
+        </ol>
+      </div>
+      <div class="rail-group">
+        <h3>Chat pipeline</h3>
+        <ol class="stages" id="chatStages">
+          <li data-s="rewrite"><span></span>Rewrite query</li>
+          <li data-s="dense"><span></span>Dense search</li>
+          <li data-s="sparse"><span></span>Sparse search</li>
+          <li data-s="rrf"><span></span>RRF fuse</li>
+          <li data-s="rerank"><span></span>Re-rank</li>
+          <li data-s="answer"><span></span>Generate</li>
+        </ol>
+      </div>
+      <div class="rail-group cfg">
+        <h3>Config</h3>
+        <div class="kv"><span>chunk</span><b>{{ cfg.CHUNK_SIZE }}/{{ cfg.CHUNK_OVERLAP }}</b></div>
+        <div class="kv"><span>top-n hybrid</span><b>{{ cfg.TOP_N_HYBRID }}</b></div>
+        <div class="kv"><span>top-k rerank</span><b>{{ cfg.TOP_K_RERANK }}</b></div>
+        <div class="kv"><span>RRF k</span><b>{{ cfg.RRF_K }}</b></div>
+        <div class="kv"><span>rewrite</span><b>{{ 'on' if cfg.REWRITE_ENABLED else 'off' }}</b></div>
+        <div class="kv"><span>collection</span><b id="collCount">-</b></div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: tabbed content -->
+    <section class="content">
+      <nav class="tabs">
+        <button class="tab on" data-tab="upload">Upload</button>
+        <button class="tab" data-tab="ingest">Ingest</button>
+        <button class="tab" data-tab="chunks">Chunks</button>
+        <button class="tab" data-tab="chat">Chat</button>
+      </nav>
+
+      <div id="alert" class="alert" hidden></div>
+
+      <!-- UPLOAD -->
+      <div class="view on" data-view="upload">
+        <div class="card">
+          <h2>1 - Load a dataset</h2>
+          <p class="muted">Upload a <code>.csv</code> / <code>.xlsx</code>, or use the bundled 5,000 VWO test cases.</p>
+          <div class="row">
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+            <button class="btn" id="uploadBtn">Upload</button>
+            <button class="btn ghost" id="useBundled">Use bundled 5,000</button>
+          </div>
+        </div>
+        <div id="preview"></div>
+      </div>
+
+      <!-- INGEST -->
+      <div class="view" data-view="ingest">
+        <div class="card">
+          <h2>2 - Ingest into Qdrant</h2>
+          <p class="muted">Chunk -> bge-m3 dense+sparse -> Qdrant. First run downloads bge-m3 (~2.3 GB).</p>
+          <div class="row">
+            <label class="mini">Test rows only <input type="number" id="ingestLimit" placeholder="all" min="1" style="width:90px"></label>
+            <button class="btn" id="ingestBtn" disabled>Start ingestion</button>
+          </div>
+        </div>
+        <div id="ingestCards"></div>
+      </div>
+
+      <!-- CHUNKS -->
+      <div class="view" data-view="chunks">
+        <div class="card">
+          <h2>3 - Vector store</h2>
+          <div class="row">
+            <input id="chunkQ" placeholder="search text...">
+            <input id="fPriority" placeholder="Priority">
+            <input id="fModule" placeholder="Component">
+            <input id="fJira" placeholder="Issue Key">
+            <button class="btn" id="chunkSearch">Search</button>
+          </div>
+          <div class="pager"><button class="btn ghost" id="prevPage">Prev</button><span id="pageInfo">page 1</span><button class="btn ghost" id="nextPage">Next</button></div>
+        </div>
+        <div id="chunkList"></div>
+      </div>
+
+      <!-- CHAT -->
+      <div class="view" data-view="chat">
+        <div class="card">
+          <h2>4 - Ask or generate</h2>
+          <p class="muted">Ask about the test cases, or say "create a test case for VWO-2200 login" to generate one.</p>
+          <div class="row">
+            <textarea id="chatInput" rows="2" placeholder="e.g. Which modules have the most security test cases?"></textarea>
+            <button class="btn" id="chatBtn">Send</button>
+          </div>
+          <div class="chips" id="chatChips"></div>
+        </div>
+        <div id="chatResult"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

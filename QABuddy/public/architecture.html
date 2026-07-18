@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QABuddy.ai — Architecture Diagram</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0e1a;
+      color: #c9d1d9;
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #00d084;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+    }
+    .subtitle {
+      text-align: center;
+      color: #6e7681;
+      font-size: 0.8rem;
+      margin-bottom: 2rem;
+    }
+    .diagram-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #0f1623;
+      border: 1px solid #1e2d45;
+      border-radius: 12px;
+      padding: 2rem;
+      overflow-x: auto;
+    }
+    svg { display: block; margin: 0 auto; }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 2rem;
+      color: #00c8ff;
+      text-decoration: none;
+      font-size: 0.8rem;
+    }
+    .back-link:hover { color: #fff; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: #8b949e;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <h1>QABuddy.ai — System Architecture</html>
+  <p class="subtitle">Multi-Source Hybrid RAG for QA Engineers · Next.js 14 + Groq + BM25</p>
+
+  <div class="diagram-container">
+    <svg width="1040" height="700" viewBox="0 0 1040 700" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#1e2d45"/>
+        </marker>
+        <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#00d084"/>
+        </marker>
+        <marker id="arrow-cyan" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#00c8ff"/>
+        </marker>
+        <marker id="arrow-yellow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#ffd93d"/>
+        </marker>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- ===== SECTION LABELS ===== -->
+      <text x="60" y="28" fill="#6e7681" font-size="10" font-family="JetBrains Mono">DATA SOURCES</text>
+      <text x="390" y="28" fill="#6e7681" font-size="10" font-family="JetBrains Mono">INGESTION PIPELINE</text>
+      <text x="680" y="28" fill="#6e7681" font-size="10" font-family="JetBrains Mono">STORAGE</text>
+      <text x="850" y="28" fill="#6e7681" font-size="10" font-family="JetBrains Mono">QUERY PIPELINE</text>
+
+      <!-- Section dividers -->
+      <line x1="340" y1="10" x2="340" y2="440" stroke="#1e2d45" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="650" y1="10" x2="650" y2="440" stroke="#1e2d45" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="800" y1="10" x2="800" y2="440" stroke="#1e2d45" stroke-width="1" stroke-dasharray="4,4"/>
+
+      <!-- ===== DATA SOURCE BOXES ===== -->
+      <!-- Row 1 -->
+      <rect x="20" y="40" width="110" height="36" rx="6" fill="#1a2535" stroke="#f97316" stroke-width="1.5"/>
+      <text x="75" y="57" fill="#fb923c" font-size="10" font-family="JetBrains Mono" text-anchor="middle">☕ Selenium</text>
+      <text x="75" y="70" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">Java framework</text>
+
+      <rect x="145" y="40" width="110" height="36" rx="6" fill="#1a2535" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="200" y="57" fill="#4ade80" font-size="10" font-family="JetBrains Mono" text-anchor="middle">🎭 Playwright</text>
+      <text x="200" y="70" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">TypeScript tests</text>
+
+      <!-- Row 2 -->
+      <rect x="20" y="90" width="110" height="36" rx="6" fill="#1a2535" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="75" y="107" fill="#60a5fa" font-size="10" font-family="JetBrains Mono" text-anchor="middle">📋 Test Cases</text>
+      <text x="75" y="120" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">CSV / Xray</text>
+
+      <rect x="145" y="90" width="110" height="36" rx="6" fill="#1a2535" stroke="#a855f7" stroke-width="1.5"/>
+      <text x="200" y="107" fill="#c084fc" font-size="10" font-family="JetBrains Mono" text-anchor="middle">🔴 JIRA</text>
+      <text x="200" y="120" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">Bugs / Tickets</text>
+
+      <!-- Row 3 -->
+      <rect x="20" y="140" width="110" height="36" rx="6" fill="#1a2535" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="75" y="157" fill="#22d3ee" font-size="10" font-family="JetBrains Mono" text-anchor="middle">📄 Docs</text>
+      <text x="75" y="170" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">Standards / RTM</text>
+
+      <rect x="145" y="140" width="110" height="36" rx="6" fill="#1a2535" stroke="#ec4899" stroke-width="1.5"/>
+      <text x="200" y="157" fill="#f472b6" font-size="10" font-family="JetBrains Mono" text-anchor="middle">📐 PRD / SRS</text>
+      <text x="200" y="170" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">Requirements</text>
+
+      <!-- Row 4 -->
+      <rect x="20" y="190" width="110" height="36" rx="6" fill="#1a2535" stroke="#eab308" stroke-width="1.5"/>
+      <text x="75" y="207" fill="#fbbf24" font-size="10" font-family="JetBrains Mono" text-anchor="middle">🎙️ Transcripts</text>
+      <text x="75" y="220" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">Meetings / Calls</text>
+
+      <rect x="145" y="190" width="110" height="36" rx="6" fill="#1a2535" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="200" y="207" fill="#f87171" font-size="10" font-family="JetBrains Mono" text-anchor="middle">⚙️ Jenkins</text>
+      <text x="200" y="220" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">CI/CD Logs</text>
+
+      <!-- Row 5 -->
+      <rect x="20" y="240" width="110" height="36" rx="6" fill="#1a2535" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="75" y="257" fill="#818cf8" font-size="10" font-family="JetBrains Mono" text-anchor="middle">🎨 Figma</text>
+      <text x="75" y="270" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">UI Designs</text>
+
+      <rect x="145" y="240" width="110" height="36" rx="6" fill="#1a2535" stroke="#6b7280" stroke-width="1.5"/>
+      <text x="200" y="257" fill="#9ca3af" font-size="10" font-family="JetBrains Mono" text-anchor="middle">📖 Glossary</text>
+      <text x="200" y="270" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">QA Terminology</text>
+
+      <!-- Arrows from sources to ingestion -->
+      <line x1="270" y1="220" x2="358" y2="220" stroke="#1e2d45" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="300" y="215" fill="#6e7681" font-size="8" font-family="JetBrains Mono">load</text>
+
+      <!-- ===== INGESTION PIPELINE ===== -->
+      <rect x="360" y="60" width="120" height="36" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="420" y="78" fill="#00c8ff" font-size="10" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">1. Parse</text>
+      <text x="420" y="91" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">PDF/CSV/JSON/Code</text>
+
+      <line x1="420" y1="96" x2="420" y2="118" stroke="#00c8ff" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+
+      <rect x="360" y="120" width="120" height="36" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="420" y="138" fill="#00c8ff" font-size="10" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">2. Clean</text>
+      <text x="420" y="151" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">Normalize / Dedupe</text>
+
+      <line x1="420" y1="156" x2="420" y2="178" stroke="#00c8ff" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+
+      <rect x="360" y="180" width="120" height="36" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="420" y="198" fill="#00c8ff" font-size="10" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">3. Chunk</text>
+      <text x="420" y="211" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">512 tokens, 64 overlap</text>
+
+      <line x1="420" y1="216" x2="420" y2="238" stroke="#00c8ff" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+
+      <rect x="360" y="240" width="120" height="36" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="420" y="258" fill="#00c8ff" font-size="10" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">4. Embed</text>
+      <text x="420" y="271" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">BGE-M3 (dense+sparse)</text>
+
+      <line x1="420" y1="276" x2="420" y2="298" stroke="#00c8ff" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+
+      <rect x="360" y="300" width="120" height="36" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="420" y="318" fill="#00c8ff" font-size="10" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">5. Index</text>
+      <text x="420" y="331" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">BM25 + Qdrant upsert</text>
+
+      <!-- ===== STORAGE ===== -->
+      <!-- Qdrant -->
+      <rect x="660" y="120" width="120" height="80" rx="8" fill="#0d1b2a" stroke="#00d084" stroke-width="2"/>
+      <text x="720" y="148" fill="#00d084" font-size="11" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">Qdrant</text>
+      <text x="720" y="163" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">Vector DB</text>
+      <text x="720" y="176" fill="#4ade80" font-size="8" font-family="JetBrains Mono" text-anchor="middle">dense vectors</text>
+      <text x="720" y="189" fill="#fbbf24" font-size="8" font-family="JetBrains Mono" text-anchor="middle">sparse vectors</text>
+
+      <!-- BM25 Index -->
+      <rect x="660" y="220" width="120" height="60" rx="8" fill="#0d1b2a" stroke="#ffd93d" stroke-width="2"/>
+      <text x="720" y="244" fill="#ffd93d" font-size="11" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">BM25 Index</text>
+      <text x="720" y="259" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">In-memory / TS</text>
+      <text x="720" y="272" fill="#fbbf24" font-size="8" font-family="JetBrains Mono" text-anchor="middle">TF-IDF scoring</text>
+
+      <!-- Static KB JSON -->
+      <rect x="660" y="300" width="120" height="50" rx="8" fill="#0d1b2a" stroke="#6366f1" stroke-width="2"/>
+      <text x="720" y="322" fill="#818cf8" font-size="10" font-family="JetBrains Mono" text-anchor="middle">Knowledge</text>
+      <text x="720" y="336" fill="#818cf8" font-size="10" font-family="JetBrains Mono" text-anchor="middle">Base JSON</text>
+      <text x="720" y="347" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">18 chunks / 9 types</text>
+
+      <!-- Arrow from ingestion to storage -->
+      <line x1="480" y1="318" x2="658" y2="280" stroke="#1e2d45" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- ===== QUERY PIPELINE ===== -->
+      <!-- Query input -->
+      <rect x="810" y="60" width="120" height="36" rx="6" fill="#1a2030" stroke="#00d084" stroke-width="2"/>
+      <text x="870" y="78" fill="#00d084" font-size="10" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">User Query</text>
+      <text x="870" y="91" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">QA question / task</text>
+
+      <line x1="870" y1="96" x2="870" y2="118" stroke="#00d084" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+      <!-- Mode detection -->
+      <rect x="810" y="120" width="120" height="40" rx="6" fill="#1a2030" stroke="#00d084" stroke-width="1.5"/>
+      <text x="870" y="138" fill="#00d084" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Mode Detection</text>
+      <text x="870" y="152" fill="#fbbf24" font-size="8" font-family="JetBrains Mono" text-anchor="middle">answer/generate/rca/review</text>
+
+      <line x1="870" y1="160" x2="870" y2="180" stroke="#00d084" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+      <!-- Hybrid search -->
+      <rect x="810" y="182" width="120" height="40" rx="6" fill="#1a2030" stroke="#00d084" stroke-width="1.5"/>
+      <text x="870" y="199" fill="#00d084" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Hybrid Search</text>
+      <text x="870" y="213" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">BM25 + dense vector</text>
+
+      <!-- Arrow from BM25 to hybrid search -->
+      <line x1="780" y1="250" x2="810" y2="210" stroke="#ffd93d" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-yellow)"/>
+
+      <!-- Arrow from Qdrant to hybrid search -->
+      <line x1="780" y1="180" x2="810" y2="200" stroke="#00d084" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+
+      <line x1="870" y1="222" x2="870" y2="242" stroke="#00d084" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+      <!-- RRF Fusion -->
+      <rect x="810" y="244" width="120" height="36" rx="6" fill="#1a2030" stroke="#00d084" stroke-width="1.5"/>
+      <text x="870" y="261" fill="#00d084" font-size="9" font-family="JetBrains Mono" text-anchor="middle">RRF Fusion</text>
+      <text x="870" y="274" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">Reciprocal Rank Fusion</text>
+
+      <line x1="870" y1="280" x2="870" y2="300" stroke="#00d084" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+      <!-- Rerank -->
+      <rect x="810" y="302" width="120" height="36" rx="6" fill="#1a2030" stroke="#00d084" stroke-width="1.5"/>
+      <text x="870" y="320" fill="#00d084" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Rerank / Filter</text>
+      <text x="870" y="333" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">Top-6 chunks selected</text>
+
+      <line x1="870" y1="338" x2="870" y2="358" stroke="#00d084" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+      <!-- LLM -->
+      <rect x="810" y="360" width="120" height="50" rx="6" fill="#162535" stroke="#b48eff" stroke-width="2"/>
+      <text x="870" y="380" fill="#b48eff" font-size="10" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">Groq LLM</text>
+      <text x="870" y="394" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">llama-3.1-70b</text>
+      <text x="870" y="405" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">streaming</text>
+
+      <line x1="870" y1="410" x2="870" y2="430" stroke="#b48eff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Cited answer -->
+      <rect x="810" y="432" width="120" height="36" rx="6" fill="#0d1b0d" stroke="#00d084" stroke-width="2"/>
+      <text x="870" y="450" fill="#00d084" font-size="9" font-family="JetBrains Mono" text-anchor="middle" filter="url(#glow)">Cited Answer</text>
+      <text x="870" y="463" fill="#6e7681" font-size="8" font-family="JetBrains Mono" text-anchor="middle">with [n] citations</text>
+
+      <!-- ===== UI LAYER ===== -->
+      <rect x="60" y="480" width="900" height="80" rx="10" fill="#0f1623" stroke="#1e2d45" stroke-width="1.5"/>
+      <text x="510" y="505" fill="#6e7681" font-size="9" font-family="JetBrains Mono" text-anchor="middle">UI LAYER — Next.js 14 App Router</text>
+
+      <rect x="80" y="515" width="130" height="32" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="145" y="532" fill="#00c8ff" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Chat Interface</text>
+      <text x="145" y="543" fill="#6e7681" font-size="7" font-family="JetBrains Mono" text-anchor="middle">app/page.tsx (useChat)</text>
+
+      <rect x="230" y="515" width="130" height="32" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="295" y="532" fill="#00c8ff" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Source Filter</text>
+      <text x="295" y="543" fill="#6e7681" font-size="7" font-family="JetBrains Mono" text-anchor="middle">9 sources toggle</text>
+
+      <rect x="380" y="515" width="130" height="32" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="445" y="532" fill="#00c8ff" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Citation Cards</text>
+      <text x="445" y="543" fill="#6e7681" font-size="7" font-family="JetBrains Mono" text-anchor="middle">inline [n] references</text>
+
+      <rect x="530" y="515" width="130" height="32" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="595" y="532" fill="#00c8ff" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Streaming SSE</text>
+      <text x="595" y="543" fill="#6e7681" font-size="7" font-family="JetBrains Mono" text-anchor="middle">Vercel AI SDK</text>
+
+      <rect x="680" y="515" width="130" height="32" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="745" y="532" fill="#00c8ff" font-size="9" font-family="JetBrains Mono" text-anchor="middle">API Routes</text>
+      <text x="745" y="543" fill="#6e7681" font-size="7" font-family="JetBrains Mono" text-anchor="middle">/chat /health /stats</text>
+
+      <rect x="830" y="515" width="120" height="32" rx="6" fill="#162035" stroke="#00c8ff" stroke-width="1.5"/>
+      <text x="890" y="532" fill="#00c8ff" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Vercel Deploy</text>
+      <text x="890" y="543" fill="#6e7681" font-size="7" font-family="JetBrains Mono" text-anchor="middle">Edge + Node runtime</text>
+
+      <!-- Arrow from query pipeline to UI -->
+      <line x1="870" y1="468" x2="595" y2="514" stroke="#00d084" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+
+      <!-- Title bar decoration -->
+      <rect x="20" y="648" width="1000" height="1" fill="#1e2d45"/>
+      <text x="520" y="672" fill="#6e7681" font-size="9" font-family="JetBrains Mono" text-anchor="middle">QABuddy.ai · Adapted from PramodDutta/AITesterBlueprint3x chapter_08_QABuddyAI · Vercel-optimized deployment</text>
+    </svg>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#00c8ff"></div> Ingestion pipeline</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00d084"></div> Query pipeline</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffd93d"></div> BM25 retrieval</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#b48eff"></div> LLM generation (Groq)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1e2d45"></div> Data flow</div>
+    </div>
+  </div>
+
+  <a href="/" class="back-link">← Back to QABuddy Chat</a>
+</body>
+</html>

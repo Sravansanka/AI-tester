@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QABuddy.ai — Documentation</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0e1a;
+      color: #c9d1d9;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      padding: 0;
+    }
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 220px;
+      background: #0f1623;
+      border-right: 1px solid #1e2d45;
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
+    }
+    .sidebar h2 {
+      color: #00d084;
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.1em;
+    }
+    .sidebar a {
+      display: block;
+      color: #6e7681;
+      text-decoration: none;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.2rem;
+      transition: all 0.15s;
+    }
+    .sidebar a:hover { background: #1e2d45; color: #c9d1d9; }
+    .sidebar .section-label {
+      color: #1e2d45;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin: 1rem 0 0.4rem;
+    }
+    .main {
+      margin-left: 220px;
+      padding: 2rem 3rem;
+      max-width: 860px;
+    }
+    h1 { color: #00d084; font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .tagline { color: #6e7681; font-size: 0.8rem; margin-bottom: 2rem; }
+    h2 { color: #00c8ff; font-size: 1.1rem; margin: 2.5rem 0 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid #1e2d45; }
+    h3 { color: #ffd93d; font-size: 0.9rem; margin: 1.5rem 0 0.5rem; }
+    p { color: #8b949e; margin-bottom: 0.8rem; }
+    ul, ol { margin: 0.5rem 0 0.8rem 1.5rem; color: #8b949e; }
+    li { margin-bottom: 0.3rem; }
+    strong { color: #c9d1d9; }
+    code {
+      background: #0f1623;
+      border: 1px solid #1e2d45;
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #00d084;
+    }
+    pre {
+      background: #0f1623;
+      border: 1px solid #1e2d45;
+      border-radius: 8px;
+      padding: 1.2rem;
+      overflow-x: auto;
+      margin: 0.8rem 0;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #c9d1d9;
+      font-size: 0.8rem;
+    }
+    .keyword { color: #b48eff; }
+    .string { color: #ffd93d; }
+    .comment { color: #6e7681; font-style: italic; }
+    .type { color: #00c8ff; }
+    .fn { color: #00d084; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      margin: 0.2rem;
+    }
+    .badge-green { background: #00d084/10; border: 1px solid #00d084; color: #00d084; background-color: rgba(0,208,132,0.1); }
+    .badge-cyan { background-color: rgba(0,200,255,0.1); border: 1px solid #00c8ff; color: #00c8ff; }
+    .badge-yellow { background-color: rgba(255,217,61,0.1); border: 1px solid #ffd93d; color: #ffd93d; }
+    .badge-purple { background-color: rgba(180,142,255,0.1); border: 1px solid #b48eff; color: #b48eff; }
+    .api-endpoint {
+      background: #0f1623;
+      border: 1px solid #1e2d45;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 0.8rem 0;
+    }
+    .method { color: #00d084; font-weight: bold; }
+    .path { color: #00c8ff; }
+    .divider { height: 1px; background: #1e2d45; margin: 2rem 0; }
+    .back-link {
+      display: inline-block;
+      color: #00c8ff;
+      text-decoration: none;
+      font-size: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+    .back-link:hover { color: #fff; }
+    table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.8rem; }
+    th { background: #0f1623; color: #00c8ff; padding: 0.5rem; text-align: left; border: 1px solid #1e2d45; }
+    td { padding: 0.5rem; border: 1px solid #1e2d45; color: #8b949e; }
+    tr:hover td { background: rgba(30,45,69,0.3); }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <h2>🤖 QABuddy.ai</h2>
+    <div class="section-label">Overview</div>
+    <a href="#overview">What is QABuddy?</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#tech-stack">Tech Stack</a>
+    <div class="section-label">Components</div>
+    <a href="#knowledge-base">Knowledge Base</a>
+    <a href="#bm25">BM25 Retrieval</a>
+    <a href="#llm">LLM & Prompts</a>
+    <a href="#api">API Endpoints</a>
+    <div class="section-label">Deployment</div>
+    <a href="#deploy">Vercel Deploy</a>
+    <a href="#env">Environment Vars</a>
+    <a href="#extend">Extending the KB</a>
+    <div class="section-label">Origin</div>
+    <a href="#origin">Original Design</a>
+    <a href="#adaptation">Cloud Adaptation</a>
+  </nav>
+
+  <main class="main">
+    <a href="/" class="back-link">← Back to Chat</a>
+    <h1>QABuddy.ai</h1>
+    <p class="tagline">Multi-Source Hybrid RAG for QA Engineers · Technical Documentation</p>
+
+    <div>
+      <span class="badge badge-green">Next.js 14</span>
+      <span class="badge badge-cyan">Vercel AI SDK</span>
+      <span class="badge badge-yellow">BM25 Retrieval</span>
+      <span class="badge badge-purple">Groq LLM</span>
+      <span class="badge badge-green">TypeScript</span>
+    </div>
+
+    <h2 id="overview">What is QABuddy.ai?</h2>
+    <p>
+      QABuddy.ai is an AI-powered assistant for QA engineers that provides cited answers grounded in your team's actual QA knowledge base — Selenium framework code, Playwright tests, test cases, JIRA tickets, PRDs, Jenkins logs, meeting transcripts, and glossaries.
+    </p>
+    <p>
+      Unlike generic AI chatbots that hallucinate, QABuddy retrieves the most relevant chunks from your indexed knowledge base using BM25 search, then passes them as grounded context to the LLM. Every answer includes numbered citations pointing back to the exact source.
+    </p>
+    <p><strong>Key capabilities:</strong></p>
+    <ul>
+      <li><strong>Answer mode</strong> — practical QA engineering answers with code examples</li>
+      <li><strong>Generate mode</strong> — auto-detected when you ask to create/write test cases</li>
+      <li><strong>Review mode</strong> — coverage gap analysis against requirements</li>
+      <li><strong>RCA mode</strong> — root cause analysis for test failures and flakiness</li>
+    </ul>
+
+    <h2 id="architecture">Architecture Overview</h2>
+    <p>The system consists of two main pipelines:</p>
+
+    <h3>Ingestion Pipeline (build-time)</h3>
+    <ol>
+      <li><strong>Parse</strong> — load raw files (PDF, CSV, JSON, Java, TypeScript, Markdown)</li>
+      <li><strong>Clean</strong> — normalize whitespace, remove noise, deduplicate</li>
+      <li><strong>Chunk</strong> — split into ~512 token chunks with 64 token overlap</li>
+      <li><strong>Embed</strong> — generate dense (semantic) + sparse (BM25) vectors via BGE-M3</li>
+      <li><strong>Index</strong> — upsert to Qdrant vector DB with metadata (source_type, path, ticket_key, etc.)</li>
+    </ol>
+    <p>In the Vercel-optimized version, the knowledge base is pre-compiled as a static TypeScript module (<code>lib/knowledge-base.ts</code>), and BM25 indexing happens in-memory at first request.</p>
+
+    <h3>Query Pipeline (runtime)</h3>
+    <ol>
+      <li><strong>Query</strong> — user submits question via chat UI</li>
+      <li><strong>Mode detection</strong> — regex patterns classify intent (answer/generate/rca/review)</li>
+      <li><strong>Hybrid search</strong> — BM25 sparse retrieval + dense vector search (Qdrant)</li>
+      <li><strong>RRF Fusion</strong> — Reciprocal Rank Fusion combines both result lists</li>
+      <li><strong>Rerank</strong> — top-6 chunks selected, filtered by optional source type</li>
+      <li><strong>LLM generation</strong> — chunks injected as numbered context, Groq streams the answer</li>
+      <li><strong>Cited answer</strong> — response with [n] citations, source badges shown in UI</li>
+    </ol>
+
+    <h2 id="tech-stack">Technology Stack</h2>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+      <tr><td>Frontend</td><td>Next.js 14 App Router</td><td>React SSR + API routes</td></tr>
+      <tr><td>UI</td><td>Tailwind CSS + JetBrains Mono</td><td>Terminal-themed dark UI</td></tr>
+      <tr><td>Streaming</td><td>Vercel AI SDK (useChat)</td><td>SSE streaming from Groq</td></tr>
+      <tr><td>LLM</td><td>Groq API (llama-3.1-70b-versatile)</td><td>Fast inference, 70B params</td></tr>
+      <tr><td>Retrieval</td><td>BM25 (pure TypeScript)</td><td>Keyword-based sparse retrieval</td></tr>
+      <tr><td>Vector DB</td><td>Qdrant (original design)</td><td>Dense + sparse vector storage</td></tr>
+      <tr><td>Embeddings</td><td>BGE-M3 (original design)</td><td>Dense + sparse embeddings</td></tr>
+      <tr><td>Deployment</td><td>Vercel</td><td>Serverless, global edge CDN</td></tr>
+      <tr><td>Language</td><td>TypeScript</td><td>End-to-end type safety</td></tr>
+    </table>
+
+    <h2 id="knowledge-base">Knowledge Base Structure</h2>
+    <p>The knowledge base (<code>lib/knowledge-base.ts</code>) contains pre-loaded QA content organized by source type:</p>
+
+    <table>
+      <tr><th>Source Type</th><th>Icon</th><th>Content</th><th>Chunks</th></tr>
+      <tr><td>selenium</td><td>☕</td><td>Java WebDriver framework, POM patterns, wait utilities</td><td>5</td></tr>
+      <tr><td>playwright</td><td>🎭</td><td>TypeScript specs, fixtures, auth, API testing</td><td>5</td></tr>
+      <tr><td>test_cases</td><td>📋</td><td>Structured test cases with IDs, priorities, steps</td><td>4</td></tr>
+      <tr><td>jira</td><td>🔴</td><td>Bug reports, task descriptions, root cause analyses</td><td>3</td></tr>
+      <tr><td>docs</td><td>📄</td><td>Testing standards, RTM templates</td><td>2</td></tr>
+      <tr><td>prd</td><td>📐</td><td>Product requirements, acceptance criteria</td><td>1</td></tr>
+      <tr><td>transcripts</td><td>🎙️</td><td>QA standup meeting notes</td><td>1</td></tr>
+      <tr><td>jenkins</td><td>⚙️</td><td>CI build logs, failure analyses, flakiness reports</td><td>2</td></tr>
+      <tr><td>glossary</td><td>📖</td><td>QA terminology, patterns, anti-patterns</td><td>2</td></tr>
+    </table>
+
+    <p>Each chunk has the following TypeScript interface:</p>
+    <pre><code><span class="keyword">export interface</span> <span class="type">KBChunk</span> {
+  id: <span class="type">string</span>;                    <span class="comment">// unique identifier e.g. "sel-001"</span>
+  text: <span class="type">string</span>;                   <span class="comment">// full text content for BM25 indexing</span>
+  source_type: <span class="type">SourceType</span>;       <span class="comment">// one of 9 types</span>
+  path: <span class="type">string</span>;                   <span class="comment">// original file path</span>
+  heading?: <span class="type">string</span>;              <span class="comment">// section heading</span>
+  line_start?: <span class="type">number</span>;           <span class="comment">// line number in source file</span>
+  ticket_key?: <span class="type">string</span>;           <span class="comment">// JIRA ticket e.g. "VWO-1234"</span>
+  tc_id?: <span class="type">string</span>;               <span class="comment">// test case ID e.g. "TC-VWO-0001"</span>
+  build_id?: <span class="type">string</span>;            <span class="comment">// CI build e.g. "BUILD-4521"</span>
+}</code></pre>
+
+    <h2 id="bm25">BM25 Retrieval</h2>
+    <p>
+      The BM25 (Best Match 25) implementation in <code>lib/bm25.ts</code> is a pure TypeScript in-memory search engine. It uses the classic Okapi BM25 formula:
+    </p>
+    <pre><code><span class="comment">// BM25 scoring formula for term t in document d:</span>
+score(d, q) = Σ IDF(t) × (tf(t,d) × (k1 + 1)) / (tf(t,d) + k1 × (1 - b + b × |d|/avgdl))
+
+<span class="comment">// Parameters:</span>
+k1 = 1.5  <span class="comment">// term frequency saturation</span>
+b  = 0.75 <span class="comment">// length normalization (0=no norm, 1=full norm)</span></code></pre>
+
+    <h3>Indexing process</h3>
+    <pre><code><span class="keyword">const</span> { index } = <span class="fn">getIndex</span>(); <span class="comment">// lazy-initialized singleton</span>
+<span class="comment">// First call: iterates all KB chunks, tokenizes, builds inverted index</span>
+<span class="comment">// Subsequent calls: returns cached index (sub-millisecond)</span></code></pre>
+
+    <h3>Search with source filtering</h3>
+    <pre><code><span class="keyword">const</span> chunks = <span class="fn">search</span>(query, topK=6, sourceFilter=[<span class="string">"selenium"</span>, <span class="string">"playwright"</span>]);
+<span class="comment">// Returns KBChunk[] sorted by BM25 score, filtered by source_type</span></code></pre>
+
+    <p>The tokenizer lowercases text, removes punctuation, and filters tokens shorter than 3 characters. This produces clean term frequencies for the inverted index.</p>
+
+    <h2 id="llm">LLM & Prompt Engineering</h2>
+    <p>The prompt system (<code>lib/prompts.ts</code>) auto-detects the query mode and builds mode-specific system prompts:</p>
+
+    <table>
+      <tr><th>Mode</th><th>Trigger Pattern</th><th>System Behavior</th></tr>
+      <tr><td>answer</td><td>(default)</td><td>Practical answer with code examples, bullet points</td></tr>
+      <tr><td>generate</td><td>generate|create|write|draft</td><td>Structured test cases with all required fields</td></tr>
+      <tr><td>rca</td><td>root cause|flaky|failure|debug</td><td>Categorized RCA with evidence and fix suggestion</td></tr>
+      <tr><td>review</td><td>review|coverage|gap|missing</td><td>Coverage analysis with requirement cross-refs</td></tr>
+    </table>
+
+    <p>All modes enforce the same core rules:</p>
+    <ul>
+      <li>Answer <strong>only</strong> from provided context chunks — no hallucination</li>
+      <li>Cite every claim with <code>[n]</code> referencing the chunk number</li>
+      <li>If not in context, say so explicitly</li>
+    </ul>
+
+    <h2 id="api">API Endpoints</h2>
+
+    <div class="api-endpoint">
+      <p><span class="method">POST</span> <span class="path">/api/chat</span></p>
+      <p>Streaming chat endpoint. Accepts messages array and optional sourceFilter. Returns SSE stream via Vercel AI SDK data protocol.</p>
+      <pre><code><span class="comment">// Request body</span>
+{
+  messages: [{ role: <span class="string">"user"</span>, content: <span class="string">"How do I fix flaky tests?"</span> }],
+  sourceFilter: [<span class="string">"jenkins"</span>, <span class="string">"jira"</span>]  <span class="comment">// optional</span>
+}
+
+<span class="comment">// Response headers</span>
+X-Citations: <span class="string">'[{"n":1,"label":"BUILD-4499","source_type":"jenkins","path":"..."}]'</span>
+X-Mode: <span class="string">"rca"</span>
+X-Chunks-Used: <span class="string">"6"</span></code></pre>
+    </div>
+
+    <div class="api-endpoint">
+      <p><span class="method">GET</span> <span class="path">/api/health</span></p>
+      <p>Health check endpoint. Returns KB status and API key availability.</p>
+      <pre><code>{ status: <span class="string">"ok"</span>, kb_chunks: 25, sources: [...], groq_key_set: <span class="keyword">true</span>, timestamp: <span class="string">"..."</span> }</code></pre>
+    </div>
+
+    <div class="api-endpoint">
+      <p><span class="method">GET</span> <span class="path">/api/stats</span></p>
+      <p>Statistics endpoint. Returns chunk counts by source type.</p>
+      <pre><code>{ total_chunks: 25, by_source: { selenium: 5, playwright: 5, ... }, sources_active: 9 }</code></pre>
+    </div>
+
+    <h2 id="deploy">Vercel Deployment</h2>
+    <p>The app is designed for zero-configuration Vercel deployment:</p>
+    <pre><code><span class="comment"># 1. Clone repository</span>
+git clone https://github.com/SravanaKumarSanka/qabuddy-ai
+cd qabuddy-ai
+
+<span class="comment"># 2. Install dependencies</span>
+npm install
+
+<span class="comment"># 3. Set environment variable</span>
+<span class="keyword">export</span> GROQ_API_KEY=your_key_here
+
+<span class="comment"># 4. Run locally</span>
+npm run dev
+
+<span class="comment"># 5. Deploy to Vercel</span>
+npx vercel --prod</code></pre>
+
+    <h2 id="env">Environment Variables</h2>
+    <table>
+      <tr><th>Variable</th><th>Required</th><th>Description</th></tr>
+      <tr><td>GROQ_API_KEY</td><td>Yes</td><td>Get from console.groq.com — free tier available</td></tr>
+    </table>
+    <p>Set in Vercel dashboard under Settings → Environment Variables, or via Vercel CLI:</p>
+    <pre><code>vercel env add GROQ_API_KEY production</code></pre>
+
+    <h2 id="extend">Extending the Knowledge Base</h2>
+    <p>To add new content, append chunks to the <code>knowledgeBase</code> array in <code>lib/knowledge-base.ts</code>:</p>
+    <pre><code>{
+  id: <span class="string">"mymodule-001"</span>,
+  source_type: <span class="string">"docs"</span>,
+  path: <span class="string">"data/my-doc.md"</span>,
+  heading: <span class="string">"My Section"</span>,
+  text: <span class="string">`[my-doc] Section heading
+
+  Your content here. BM25 will index this automatically.
+  Include relevant keywords, code snippets, and context.
+  The more specific, the better the retrieval quality.`</span>
+}</code></pre>
+    <p>The BM25 index rebuilds automatically on the next request after deployment. No vector database setup required for the Vercel version.</p>
+
+    <h2 id="origin">Original Design (AITesterBlueprint3x)</h2>
+    <p>QABuddy.ai is adapted from <code>chapter_08_QABuddyAI</code> in the <a href="https://github.com/PramodDutta/AITesterBlueprint3x" style="color:#00c8ff">PramodDutta/AITesterBlueprint3x</a> repository by Pramod Dutta.</p>
+    <p>The original system uses:</p>
+    <ul>
+      <li><strong>BGE-M3 embeddings</strong> — BAAI/bge-m3 model for dense + sparse vectors (ColBERT-style)</li>
+      <li><strong>Qdrant</strong> — vector database running locally or on Qdrant Cloud</li>
+      <li><strong>Flask backend</strong> — Python web server with Server-Sent Events streaming</li>
+      <li><strong>Groq API</strong> — openai/gpt-oss-120b model for generation</li>
+      <li><strong>Hybrid retrieval</strong> — RRF fusion of dense + sparse Qdrant search results</li>
+    </ul>
+
+    <h2 id="adaptation">Cloud Adaptation Decisions</h2>
+    <p>The following changes were made to enable Vercel serverless deployment:</p>
+    <table>
+      <tr><th>Original</th><th>Vercel Adaptation</th><th>Reason</th></tr>
+      <tr><td>BGE-M3 embeddings</td><td>BM25 (TypeScript)</td><td>No 4GB ML model on serverless</td></tr>
+      <tr><td>Qdrant vector DB</td><td>In-memory BM25 index</td><td>No persistent storage on Edge</td></tr>
+      <tr><td>Flask (Python)</td><td>Next.js 14 API routes</td><td>Native Vercel framework</td></tr>
+      <tr><td>Dynamic ingestion</td><td>Static knowledge-base.ts</td><td>Pre-compiled for fast cold start</td></tr>
+      <tr><td>gpt-oss-120b</td><td>llama-3.1-70b-versatile</td><td>Available on Groq free tier</td></tr>
+      <tr><td>Custom SSE</td><td>Vercel AI SDK streamText</td><td>Production-grade streaming</td></tr>
+    </table>
+    <p>The core RAG architecture concept (hybrid retrieval → rerank → LLM with citations) is preserved. Production use cases with more than a few hundred chunks should use the full original stack with Qdrant + BGE-M3 embeddings.</p>
+
+    <div class="divider"></div>
+    <p style="color:#6e7681; font-size:0.75rem; text-align:center;">
+      QABuddy.ai · Built with Next.js 14, Vercel AI SDK, Groq, BM25 · Adapted from AITesterBlueprint3x Chapter 8
+    </p>
+  </main>
+</body>
+</html>

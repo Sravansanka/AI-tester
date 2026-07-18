@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advanced RAG, Explained — The Testing Academy</title>
+<style>
+  :root{
+    --cream:#f6f2ea;--paper:#fffdf8;--ink:#2b2620;--muted:#8c8375;
+    --coral:#cc785c;--coral-soft:#f0d9cf;--green:#5a8f6b;--blue:#5b7fa6;
+    --amber:#c99a3f;--purple:#8b6fb0;--border:#e8e0d3;--mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--cream);color:var(--ink);
+    font-family:ui-sans-serif,-apple-system,"Segoe UI",sans-serif;line-height:1.65;font-size:16px}
+  .wrap{max-width:940px;margin:0 auto;padding:0 22px}
+  code{font-family:var(--mono);background:#00000008;padding:1px 6px;border-radius:5px;font-size:.88em}
+  h1,h2,h3{line-height:1.2;letter-spacing:-.01em}
+  a{color:var(--coral)}
+
+  header{position:sticky;top:0;z-index:10;background:rgba(255,253,248,.86);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border)}
+  header .wrap{display:flex;justify-content:space-between;align-items:center;padding:13px 22px}
+  .brand{font-weight:700;display:flex;align-items:center;gap:9px}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 4px var(--coral-soft)}
+  nav a{color:var(--muted);text-decoration:none;font-size:13.5px;margin-left:18px;font-weight:600}
+  nav a:hover{color:var(--coral)}
+  @media(max-width:640px){nav{display:none}}
+
+  .hero{padding:64px 0 40px;text-align:center}
+  .hero h1{font-size:44px;margin:0 0 14px}
+  .hero .accent{color:var(--coral)}
+  .hero p{font-size:19px;color:var(--muted);max-width:660px;margin:0 auto 26px}
+  .pill{display:inline-block;background:var(--coral-soft);color:#9c4a32;font-family:var(--mono);
+    font-size:12px;padding:5px 12px;border-radius:999px;margin-bottom:22px}
+  .stack{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .chip{background:var(--paper);border:1px solid var(--border);border-radius:999px;padding:6px 13px;
+    font-size:12.5px;font-family:var(--mono);color:var(--muted)}
+
+  section{padding:44px 0;border-top:1px solid var(--border)}
+  section h2{font-size:28px;margin:0 0 6px}
+  section .lead{color:var(--muted);font-size:16.5px;margin:0 0 26px;max-width:680px}
+  .js .reveal{opacity:0;transform:translateY(16px);transition:.6s cubic-bezier(.2,.7,.2,1)}
+  .js .reveal.in{opacity:1;transform:none}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:720px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:22px}
+  .card h3{margin:0 0 6px;font-size:18px;display:flex;align-items:center;gap:9px}
+  .card p{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+  .tag{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px}
+  .t-dense{background:#e2ecf5;color:var(--blue)} .t-sparse{background:var(--coral-soft);color:#9c4a32}
+  .t-rrf{background:#efe7d3;color:var(--amber)} .t-rr{background:#e6efe8;color:var(--green)}
+  .t-rw{background:#ece4f2;color:var(--purple)}
+
+  /* animated pipeline */
+  .flow{background:var(--paper);border:1px solid var(--border);border-radius:18px;padding:22px}
+  .flow svg{width:100%;height:auto;display:block}
+  .node rect{fill:var(--cream);stroke:var(--border);stroke-width:1.5}
+  .node text{font-family:var(--mono);font-size:11px;fill:var(--ink)}
+  .node .sub{fill:var(--muted);font-size:9px}
+  .edge{stroke:var(--coral);stroke-width:2;fill:none;stroke-dasharray:6 6;animation:dash 1s linear infinite}
+  .edge.slow{animation-duration:1.6s}
+  @keyframes dash{to{stroke-dashoffset:-24}}
+  .pulse{animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+  .bars{display:flex;align-items:flex-end;gap:5px;height:64px}
+  .bars i{flex:1;background:var(--coral-soft);border:1px solid var(--coral);border-bottom:none;border-radius:3px 3px 0 0;display:block;
+    animation:grow 1.8s ease-in-out infinite alternate}
+  @keyframes grow{to{transform:scaleY(.4)}}
+  .vec{font-family:var(--mono);font-size:11.5px;color:var(--green);background:var(--cream);padding:7px 10px;border-radius:8px;overflow-x:auto}
+  .tok{display:inline-block;background:var(--coral-soft);color:#9c4a32;border-radius:6px;padding:2px 7px;margin:2px;font-size:11.5px;font-family:var(--mono)}
+
+  .steps{counter-reset:s;display:grid;gap:12px}
+  .step{display:flex;gap:14px;background:var(--paper);border:1px solid var(--border);border-radius:13px;padding:14px 16px}
+  .step::before{counter-increment:s;content:counter(s);flex:none;width:30px;height:30px;border-radius:50%;
+    background:var(--coral);color:#fff;display:grid;place-items:center;font-weight:700;font-family:var(--mono);font-size:14px}
+  .step b{display:block}
+  .step span{color:var(--muted);font-size:14px}
+
+  table{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:8px}
+  th,td{border:1px solid var(--border);padding:8px 11px;text-align:left}
+  th{background:var(--cream);color:var(--muted)}
+  .note{background:var(--coral-soft);border:1px solid var(--coral);border-radius:13px;padding:16px 20px;color:#7d3a26}
+  footer{padding:40px 0;text-align:center;color:var(--muted);font-size:13.5px;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand"><span class="dot"></span> Advanced RAG, Explained</div>
+  <nav>
+    <a href="#why">Why</a><a href="#pipeline">Pipeline</a><a href="#techniques">Techniques</a>
+    <a href="#flow">Flow</a><a href="#stack">Stack</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="pill">The Testing Academy · Chapter 07 · built by vibe coding</div>
+    <h1>RAG that actually works <span class="accent">at scale</span></h1>
+    <p>A basic RAG (one dense embedding + top-k) breaks down on a real corpus. Here is how we upgraded it into a
+    hybrid, re-ranked pipeline over <b>5,000 VWO test cases</b> — and what every piece does.</p>
+    <div class="stack">
+      <span class="chip">bge-m3 (dense + sparse)</span>
+      <span class="chip">Qdrant</span>
+      <span class="chip">RRF fusion</span>
+      <span class="chip">bge-reranker-v2-m3</span>
+      <span class="chip">query rewriting</span>
+      <span class="chip">Groq gpt-oss-120b</span>
+    </div>
+  </div>
+
+  <section id="why" class="reveal">
+    <h2>Why basic RAG isn't enough</h2>
+    <p class="lead">A single dense vector captures <em>meaning</em> but misses exact tokens. On a QA corpus you
+    constantly search for things dense embeddings blur together.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>The problems</h3>
+        <p>&rarr; A query for <code>VWO-3400</code> returns semantically similar tickets, not the exact one.<br>
+        &rarr; "security test cases for the SDK" retrieves generic security text, missing the module keyword.<br>
+        &rarr; Top-k by cosine similarity is a coarse ranking — the best chunk is often at rank 7, not rank 1.</p>
+      </div>
+      <div class="card">
+        <h3>The fixes (this app)</h3>
+        <p>&rarr; <b>Sparse</b> vectors catch exact IDs and keywords.<br>
+        &rarr; <b>RRF</b> fuses semantic + keyword rankings.<br>
+        &rarr; A <b>cross-encoder</b> re-reads query+chunk together to find the truly best few.<br>
+        &rarr; <b>Query rewriting</b> widens recall before any of that.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="pipeline" class="reveal">
+    <h2>The pipeline, end to end</h2>
+    <p class="lead">Two phases. Ingestion builds the hybrid index once; every chat query flows through retrieval,
+    fusion, reranking, and generation.</p>
+    <div class="flow">
+      <svg viewBox="0 0 900 300" role="img" aria-label="RAG pipeline diagram">
+        <!-- ingest row -->
+        <g class="node">
+          <g transform="translate(10,20)"><rect width="120" height="52" rx="8"/><text x="60" y="26" text-anchor="middle">CSV · 5000 rows</text><text x="60" y="40" text-anchor="middle" class="sub">test cases</text></g>
+          <g transform="translate(180,20)"><rect width="110" height="52" rx="8"/><text x="55" y="26" text-anchor="middle">Chunk</text><text x="55" y="40" text-anchor="middle" class="sub">1000/150</text></g>
+          <g transform="translate(340,20)"><rect width="150" height="52" rx="8"/><text x="75" y="24" text-anchor="middle">bge-m3</text><text x="75" y="39" text-anchor="middle" class="sub">dense + sparse</text></g>
+          <g transform="translate(540,20)"><rect width="130" height="52" rx="8"/><text x="65" y="26" text-anchor="middle">Qdrant</text><text x="65" y="40" text-anchor="middle" class="sub">hybrid index</text></g>
+        </g>
+        <path class="edge" d="M130,46 H180"/><path class="edge" d="M290,46 H340"/><path class="edge" d="M490,46 H540"/>
+        <text x="600" y="95" class="node" font-family="var(--mono)" font-size="11" fill="#8c8375">▲ ingest once</text>
+
+        <!-- chat row -->
+        <g class="node">
+          <g transform="translate(10,150)"><rect width="120" height="52" rx="8"/><text x="60" y="26" text-anchor="middle">Question</text><text x="60" y="40" text-anchor="middle" class="sub">user</text></g>
+          <g transform="translate(175,150)"><rect width="120" height="52" rx="8"/><text x="60" y="24" text-anchor="middle">Rewrite</text><text x="60" y="39" text-anchor="middle" class="sub">3 variants</text></g>
+          <g transform="translate(340,150)"><rect width="150" height="52" rx="8"/><text x="75" y="24" text-anchor="middle">Dense + Sparse</text><text x="75" y="39" text-anchor="middle" class="sub">top-20 each</text></g>
+          <g transform="translate(540,150)"><rect width="90" height="52" rx="8"/><text x="45" y="26" text-anchor="middle">RRF</text><text x="45" y="40" text-anchor="middle" class="sub">fuse</text></g>
+          <g transform="translate(675,150)"><rect width="100" height="52" rx="8"/><text x="50" y="24" text-anchor="middle">Rerank</text><text x="50" y="39" text-anchor="middle" class="sub">top-4</text></g>
+          <g transform="translate(800,150)" class="pulse"><rect width="90" height="52" rx="8" style="fill:var(--coral-soft);stroke:var(--coral)"/><text x="45" y="26" text-anchor="middle">LLM</text><text x="45" y="40" text-anchor="middle" class="sub">answer</text></g>
+        </g>
+        <path class="edge" d="M130,176 H175"/><path class="edge" d="M295,176 H340"/><path class="edge" d="M490,176 H540"/>
+        <path class="edge" d="M630,176 H675"/><path class="edge" d="M775,176 H800"/>
+        <!-- qdrant feeds search -->
+        <path class="edge slow" d="M605,72 V120 H415 V150"/>
+      </svg>
+    </div>
+  </section>
+
+  <section id="techniques" class="reveal">
+    <h2>The four techniques</h2>
+    <p class="lead">Each one fixes a specific failure of naive retrieval.</p>
+    <div class="grid2">
+
+      <div class="card">
+        <h3><span class="tag t-dense">dense</span><span class="tag t-sparse">sparse</span> Hybrid embeddings</h3>
+        <p>One model, <code>bge-m3</code>, emits both a 1024-dim <b>dense</b> vector (meaning) and a <b>sparse</b> vector
+        (token weights). Dense finds paraphrases; sparse nails exact IDs and keywords.</p>
+        <div class="vec">dense: [-0.040, -0.019, -0.041, -0.044, -0.007, ...]</div>
+        <div style="margin-top:8px">sparse:
+          <span class="tok">Code 0.32</span><span class="tok">collection 0.27</span><span class="tok">148 0.26</span><span class="tok">Smart 0.24</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="tag t-rrf">RRF</span> Reciprocal Rank Fusion</h3>
+        <p>Dense and sparse scores live on different scales — you can't just add them. RRF merges by <em>rank</em>:
+        each list contributes <code>1 / (k + rank)</code>. Robust, tuning-free.</p>
+        <div class="vec">score(doc) = 1/(60+r<sub>dense</sub>) + 1/(60+r<sub>sparse</sub>)</div>
+        <p style="margin-top:12px">A chunk ranked #6 by dense and #2 by sparse can beat one that was #1 in only a single list.</p>
+      </div>
+
+      <div class="card">
+        <h3><span class="tag t-rr">rerank</span> Cross-encoder</h3>
+        <p><code>bge-reranker-v2-m3</code> reads the query and each candidate <em>together</em> and outputs a relevance
+        score — far sharper than comparing two independent vectors. We rerank the fused pool down to the final 4.</p>
+        <div class="bars" aria-hidden="true"><i style="height:90%;animation-delay:0s"></i><i style="height:80%;animation-delay:.1s"></i><i style="height:42%;animation-delay:.2s"></i><i style="height:30%;animation-delay:.3s"></i><i style="height:22%;animation-delay:.4s"></i></div>
+        <p style="margin-top:10px">Only the top few (tall bars) reach the LLM.</p>
+      </div>
+
+      <div class="card">
+        <h3><span class="tag t-rw">rewrite</span> Query rewriting</h3>
+        <p>Before retrieval, the LLM expands the question into 3 alternate phrasings. More phrasings &rarr; more surface
+        area for both dense and sparse search &rarr; higher recall.</p>
+        <p style="margin-top:6px"><span class="tok">"security tests for SDK"</span> <span class="tok">"auth/injection SDK cases"</span> <span class="tok">"server-side API security"</span></p>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="flow" class="reveal">
+    <h2>What happens on one query</h2>
+    <div class="steps">
+      <div class="step"><div><b>Rewrite</b><span>The question becomes 3 alternate phrasings (Groq).</span></div></div>
+      <div class="step"><div><b>Embed &amp; search</b><span>Each phrasing is embedded with bge-m3; dense and sparse each return their top-20 from Qdrant.</span></div></div>
+      <div class="step"><div><b>Fuse (RRF)</b><span>The two ranked lists merge into one fused candidate pool.</span></div></div>
+      <div class="step"><div><b>Re-rank</b><span>bge-reranker-v2-m3 re-scores the pool; the top-4 chunks survive.</span></div></div>
+      <div class="step"><div><b>Generate</b><span>Groq gpt-oss-120b answers using only those 4 chunks, citing each as <code>[Chunk N]</code>.</span></div></div>
+    </div>
+    <div class="note" style="margin-top:20px">Two auto-detected modes: <b>Answer</b> (grounded Q&amp;A) and <b>Generate</b>
+    (e.g. "create a test case for VWO-3400 heatmap privacy masking" — produces a structured test case using the
+    retrieved cases as templates).</div>
+  </section>
+
+  <section id="stack" class="reveal">
+    <h2>The stack &amp; tunables</h2>
+    <table>
+      <tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+      <tr><td>Embeddings</td><td><code>BAAI/bge-m3</code></td><td>Dense + sparse from one model — hybrid for free</td></tr>
+      <tr><td>Vector DB</td><td>Qdrant (embedded)</td><td>Native dense + sparse + payload filters, no Docker</td></tr>
+      <tr><td>Fusion</td><td>RRF (k=60)</td><td>Scale-free merge of two rankings</td></tr>
+      <tr><td>Reranker</td><td><code>bge-reranker-v2-m3</code></td><td>Cross-encoder precision on the final few</td></tr>
+      <tr><td>LLM</td><td>Groq <code>gpt-oss-120b</code></td><td>Fast, cheap generation + query rewriting</td></tr>
+    </table>
+    <table style="margin-top:14px">
+      <tr><th>Knob</th><th>Default</th><th>Effect</th></tr>
+      <tr><td>CHUNK_SIZE / OVERLAP</td><td>1000 / 150</td><td>Granularity of retrievable units</td></tr>
+      <tr><td>TOP_N_HYBRID</td><td>20</td><td>Candidates per dense/sparse search</td></tr>
+      <tr><td>RRF_K</td><td>60</td><td>Fusion smoothing</td></tr>
+      <tr><td>TOP_K_RERANK</td><td>4</td><td>Chunks sent to the LLM</td></tr>
+    </table>
+    <div class="note" style="margin-top:20px">Built by <b>vibe coding</b> for The Testing Academy: describe the pipeline
+    in plain language, let the agent scaffold the Flask app, the hybrid index, and this explainer — then tune the knobs
+    and watch each stage in the live UI.</div>
+  </section>
+
+</div>
+<footer>Advanced RAG Explorer · Chapter 07 · The Testing Academy — open the app at <code>python app.py</code> &rarr; <code>localhost:5050</code></footer>
+
+<script>
+  // Progressive enhancement: content is visible by default; JS opts into the
+  // scroll-reveal animation, and a load fallback reveals anything already in view.
+  document.documentElement.classList.add('js');
+  const io = new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.08});
+  const reveals = document.querySelectorAll('.reveal');
+  reveals.forEach(el=>io.observe(el));
+  const revealVisible = ()=>reveals.forEach(el=>{if(el.getBoundingClientRect().top < innerHeight*0.95) el.classList.add('in')});
+  addEventListener('load', revealVisible); revealVisible();
+</script>
+</body>
+</html>
